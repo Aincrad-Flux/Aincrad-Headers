@@ -9,13 +9,23 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:aincrad-headers.generateHeader"
+  ],
   "main": "./extension.js",
   "contributes": {
     "commands": [{
-      "command": "aincrad-headers.helloWorld",
-      "title": "Hello World"
-    }]
+      "command": "aincrad-headers.generateHeader",
+      "title": "Aincrad: Insert header"
+    }],
+    "keybindings": [
+      {
+        "command": "aincrad-headers.generateHeader",
+        "key": "ctrl+alt+h",
+        "mac": "cmd+alt+h",
+        "when": "editorTextFocus"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
