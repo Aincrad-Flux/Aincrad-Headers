@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const path = require('path');
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -38,6 +39,23 @@ function activate(context) {
 		const languageId = doc.languageId;
 		const fileName = doc.fileName || '';
 
+		// Resolve project name (workspace folder name) and file path relative to workspace root
+		let projectName = 'Aincrad-Flux';
+		let relPath = fileName;
+		const workspaceFolder = vscode.workspace.getWorkspaceFolder(doc.uri);
+		if (workspaceFolder && workspaceFolder.uri && workspaceFolder.uri.fsPath) {
+			projectName = workspaceFolder.name;
+			try {
+				relPath = path.relative(workspaceFolder.uri.fsPath, fileName) || path.basename(fileName);
+			} catch {
+				relPath = fileName;
+			}
+		} else if (fileName) {
+			// fallback: use parent folder name as project and file basename as relative path
+			projectName = path.basename(path.dirname(fileName)) || projectName;
+			relPath = path.relative(process.cwd(), fileName) || path.basename(fileName);
+		}
+
 		const COMMENT_STYLES = [
 			{langs: ['cpp', 'c'], open: '// ', close: ''},
 			{langs: ['java'], open: '// ', close: ''},
@@ -61,18 +79,19 @@ function activate(context) {
 		const style = pickStyle();
 
 		// Build header lines
-		const now = new Date();
-		const dateStr = now.toLocaleDateString();
+	const now = new Date();
+	// Use ISO date YYYY-MM-DD for consistency
+	const dateStr = now.toISOString().slice(0, 10);
 		const headerLines = [];
 		const open = style.open.trimEnd();
 		const close = style.close ? ' ' + style.close : '';
 
-		headerLines.push(open + '--------------- Aincrad-Flux ---------------' + close);
-		headerLines.push(open + ' Project :' + close);
-		headerLines.push(open + ' file :' + close);
+	headerLines.push(open + '--------------- ' + projectName + ' ---------------' + close);
+	headerLines.push(open + ' Project : ' + projectName + close);
+	headerLines.push(open + ' File : ' + relPath + close);
 		headerLines.push(open + '' + close);
-		headerLines.push(open + ' Date : ' + dateStr + close);
-		headerLines.push(open + ' Vertion :' + close);
+	headerLines.push(open + ' Date : ' + dateStr + close);
+	headerLines.push(open + ' Version : 1.0' + close);
 		headerLines.push(open + '' + close);
 		headerLines.push(open + ' Description :' + close);
 		headerLines.push(open + '--------------------------------------------' + close);
